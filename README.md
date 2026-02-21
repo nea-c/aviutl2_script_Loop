@@ -1,12 +1,7 @@
 
 # Loop
 
-画像ループスクリプトの頂点と思わしきスクリプト。
-
-オフセット等ほとんどの機能に対応しています。
-
-### [導入方法](https://github.com/nea-c/AviUtl-Scripts/blob/master/aviutl2/README.md)
-
+画像ループの発展形です。
 
 
 ## 最新 / Latest

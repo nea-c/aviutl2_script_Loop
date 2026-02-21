@@ -1,3 +1,5 @@
+--information:Loop r2 by 猫愛
+--label:配置
 
 --track@amount_x:X個数,-1000,1000,3,1
 --track@amount_y:Y個数,-1000,1000,3,1
