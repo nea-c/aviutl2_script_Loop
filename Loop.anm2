@@ -1,4 +1,4 @@
---information:Loop r2 by 猫愛
+--information:Loop r3 by 猫愛
 --label:配置
 
 --group:個数
@@ -48,15 +48,9 @@ local offset = { offset_x / 100, offset_y / 100, offset_z / 100 }
 
 
 local gx, gy, gz
-local x, y, z = 0, 0, 0
-local def = {0,0,0}
 local ox, oy, oz = obj.ox, obj.oy, obj.oz
 local w, h = obj.w, obj.h
-local cx,cy,cz = 0,0,0
 
-if not indiv_objects then
-  obj.effect()
-end
 
 --描画しない条件
 if (not ZeroBorder[1] or not ZeroBorder[2] or not ZeroBorder[3]) then
@@ -98,74 +92,86 @@ else
 end
 
 
-obj.num = amount_x * amount_y * amount_z
-
-for amount_zi = 0, amount_z - 1 do
-  for amount_yi = 0, amount_y - 1 do
-    for amount_xi = 0, amount_x - 1 do
-
-
-      if align[1] >= 1 then
-        x = ox + gx * (amount_xi - (amount_x - 1) / 2)
-      else
-        x = ox + amount_xi * gx
-      end
-
-      if reverse[1] then
-        x = x * -1
-      end
+local function get_i(index)
+  local xi = math.floor( index % amount_x )
+  local yi = math.floor( index % (amount_x * amount_y) / amount_x )
+  local zi = math.floor( index / (amount_x * amount_y) )
+  -- debug_print(tostring(xi)..", "..tostring(yi)..", "..tostring(zi))
+  return xi, yi, zi
+end
 
 
-      if align[2] >= 1 then
-        y = oy + gy * (amount_yi - (amount_y - 1) / 2)
-      else
-        y = oy + amount_yi * gy
-      end
+local function calc_pos(xi,yi,zi)
+  local def = {0,0,0}
+  local x, y, z = 0, 0, 0
+  local cx, cy, cz = 0,0,0
+  if align[1] >= 1 then
+    x = ox + gx * (xi - (amount_x - 1) / 2)
+  else
+    x = ox + xi * gx
+  end
 
-      if reverse[2] then
-        y = y * -1
-      end
-
-
-      if align[3] >= 1 then
-        z = oz + gz * (amount_zi - (amount_z - 1) / 2)
-      else
-        z = oz + amount_zi * gz
-      end
+  if reverse[1] then
+    x = x * -1
+  end
 
 
-      if align[1]==2 then
-  			cx = gx * (offset[1] * (amount_y - 1)) / 2
-			end
-			if align[2]==2 then
-        cy = gy * (offset[2] * (amount_x - 1)) / 2
-	  	end
-		  if align[3]==2 then
-			  cz = gz * (offset[3] * (amount_x + amount_y - 2) / 2) / 2
-			end
+  if align[2] >= 1 then
+    y = oy + gy * (yi - (amount_y - 1) / 2)
+  else
+    y = oy + yi * gy
+  end
+
+  if reverse[2] then
+    y = y * -1
+  end
 
 
-      def[1] = x + gx * (offset[1] * amount_yi) - cx
-      def[2] = y + gy * (offset[2] * amount_xi) - cy
-      def[3] = z + gz * (offset[3] * (amount_xi + amount_yi) / 2) - cz
+  if align[3] >= 1 then
+    z = oz + gz * (zi - (amount_z - 1) / 2)
+  else
+    z = oz + zi * gz
+  end
 
-      if reverse[3] then
-        def[3] = def[3] * -1
-      end
 
-      if indiv_objects then
-		    for k, v in pairs(keys) do
-			    obj[v] = objdata[v]
-		    end
-		    obj.ox = obj.ox + def[1]
-		    obj.oy = obj.oy + def[2]
-		    obj.oz = obj.oz + def[3]
-        obj.index = (amount_xi) + (amount_yi * amount_x) + (amount_zi * amount_x * amount_y)
-		    obj.effect()
-		    obj.draw()
-      else
-        obj.draw(def[1], def[2], def[3])
-      end
+  if align[1]==2 then
+    cx = gx * (offset[1] * (amount_y - 1)) / 2
+  end
+	if align[2]==2 then
+    cy = gy * (offset[2] * (amount_x - 1)) / 2
+	end
+	if align[3]==2 then
+	  cz = gz * (offset[3] * (amount_x + amount_y - 2) / 2) / 2
+	end
+
+
+  def[1] = x + gx * (offset[1] * yi) - cx
+  def[2] = y + gy * (offset[2] * xi) - cy
+  def[3] = z + gz * (offset[3] * (xi + yi) / 2) - cz
+
+  if reverse[3] then
+    def[3] = def[3] * -1
+  end
+  return unpack(def)
+end
+
+
+local num = amount_x * amount_y * amount_z
+
+
+if indiv_objects then
+  obj.copybuffer("cache:neac_loop","object")
+  obj.multiobject(
+    num,
+    function()
+      obj.copybuffer("object","cache:neac_loop")
+      obj.ox, obj.oy, obj.oz = calc_pos(get_i(obj.index))
     end
+  )
+  obj.ox = 0
+else
+  obj.effect()
+  for i = 0, num - 1 do
+    obj.draw(calc_pos(get_i(i)))
   end
 end
