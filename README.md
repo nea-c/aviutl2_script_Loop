@@ -11,10 +11,6 @@
 
 
 
-## クレジット / Credit
-
-- Supported by ePi
-
 
 ## 変更履歴 / Change log
 
